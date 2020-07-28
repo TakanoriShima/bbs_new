@@ -28,3 +28,37 @@ created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 insert into messages(name, title, body) values("山田", "初めての投稿", "Herokuにデプロイできるかな？");
+
+Heroku deploy
+
+wget https://cli-assets.heroku.com/heroku-linux-x64.tar.gz -O heroku.tar.gz
+sudo mkdir -p /usr/local/lib/heroku
+sudo tar --strip-components 1 -zxvf heroku.tar.gz -C /usr/local/lib/heroku
+sudo ln -s /usr/local/lib/heroku/bin/heroku /usr/local/bin/heroku
+
+heroku login -i
+heroku create bbs-php-pdo
+
+git remote -v
+
+git push heroku master
+
+heroku config:add TZ=Asia/Tokyo
+heroku run date
+
+heroku addons:create cleardb:ignite --app bbs-php-pdo
+
+heroku config --app bbs-php-pdo | grep CLEARDB_DATABASE_URL
+
+CLEARDB_DATABASE_URL: mysql://be98aadb1041f4:dd672692@us-cdbr-east-02.cleardb.com/heroku_5774074b0e1fbed?reconnect=true
+# CLEARDB_DATABASE_URL: mysql://(ユーザ名):(パスワード)@(ドメイン)/(データベース名)?reconnect=true
+
+user_name: be98aadb1041f4
+password: dd672692
+domain_name: us-cdbr-east-02.cleardb.com
+dbname: heroku_5774074b0e1fbed
+
+# heroku config:add CLEARDB_DATABASE_URL='mysql://(ユーザ名):(パスワード)@(ドメイン)/(データベース名)?reconnect=true&useSSL=false&useUnicode=true&characterEncoding=utf8&characterSetResults=utf8'
+
+mysql -h us-cdbr-east-02.cleardb.com -u be98aadb1041f4 -p
+dd672692 [Enter]

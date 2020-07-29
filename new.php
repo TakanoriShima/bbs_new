@@ -13,7 +13,7 @@
     // $flash_message = "";
     
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        
+        session_start();
         $name = $_POST['name'];
         $title = $_POST['title'];
         $body = $_POST['body'];
@@ -36,6 +36,8 @@
             $stmt->bindValue(':body', $body, PDO::PARAM_STR);
             $stmt->execute();
             $flash_message = "投稿が成功しました。";
+            $_SESSION['flash_message'] = $flash_message;
+            header('Location: index.php');
             
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();

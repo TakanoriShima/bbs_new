@@ -33,7 +33,7 @@
             exit;
         }
     }else{
-        
+        session_start();
         $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
         $username = 'be98aadb1041f4';
         $password = 'dd672692';
@@ -71,6 +71,7 @@
                 $stmt->bindValue(':id', $message_id, PDO::PARAM_INT);
                 $stmt->execute();
                 $flash_message = "投稿が更新されました。";
+                $_SESSION['flash_message'] = $flash_message;
                 
             }else if($_POST['kind_method'] === 'delete'){
                 
@@ -80,6 +81,7 @@
                 $stmt->bindValue(':id', $message_id, PDO::PARAM_INT);
                 $stmt->execute();
                 $flash_message = "投稿が削除されました。";
+                $_SESSION['flash_message'] = $flash_message;
             }    
             
         } catch (PDOException $e) {
@@ -87,6 +89,7 @@
             exit;
         }
         
+        header('Location: index.php');
     }
         
     
@@ -116,9 +119,7 @@
             </div>
             <div class="row mt-2">
                 <form class="col-sm-12" action="show.php" method="POST">
-                    <div class="row mt-2">
-                        <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
-                    </div>
+               
                     <!-- 1行 -->
                     <div class="form-group row">
                         <label class="col-2 col-form-label">名前</label>

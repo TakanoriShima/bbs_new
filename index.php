@@ -1,9 +1,12 @@
 <?php
+    
+    session_start();
     // テストプログラム
     $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
     $username = 'be98aadb1041f4';
     $password = 'dd672692';
     $messages = array();
+    $flash_message = "";
     // $dsn = 'mysql:host=localhost;dbname=bbs';
     // $username = 'root';
     // $password = '';
@@ -25,6 +28,10 @@
         // $stmt->bindParam(':id', $id, PDO::PARAM_STR);
     
         $messages = $stmt->fetchAll();
+        if(isset($_SESSION['flash_message']) === true){
+            $flash_message = $_SESSION['flash_message'];
+            $_SESSION['flash_message'] = null;
+        }
     } catch (PDOException $e) {
         echo 'PDO exception: ' . $e->getMessage();
         exit;
@@ -42,11 +49,20 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
         <title>簡易掲示板</title>
+        <style>
+            h2{
+                color: red;
+                background-color: pink;
+            }
+        </style>
     </head>
     <body>
         <div class="container">
             <div class="row mt-2">
                 <h1 class=" col-sm-12 text-center">投稿一覧</h1>
+            </div>
+            <div class="row mt-2">
+                <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
             </div>
             <div class="row mt-2">
                 <table class="col-sm-12 table table-bordered table-striped">

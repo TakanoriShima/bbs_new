@@ -1,10 +1,16 @@
 <?php
     if($_SERVER['REQUEST_METHOD'] === 'GET'){
-        $message_id = $_GET['id'];
-        $dsn = 'mysql:host=localhost;dbname=bbs';
-        $username = 'root';
-        $password = '';
-        $message = "";
+        // $message_id = $_GET['id'];
+        // $dsn = 'mysql:host=localhost;dbname=bbs';
+        // $username = 'root';
+        // $password = '';
+        // $message = "";
+        // テストプログラム
+        $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
+        $username = 'be98aadb1041f4';
+        $password = 'dd672692';
+        $messages = array();
+        $flash_message = "";
     
         try {
             $message_id = $_GET['id'];

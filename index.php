@@ -1,8 +1,12 @@
 <?php
     // テストプログラム
-    $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
-    $username = 'be98aadb1041f4';
-    $password = 'dd672692';
+    // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
+    // $username = 'be98aadb1041f4';
+    // $password = 'dd672692';
+    // $messages = array();
+    $dsn = 'mysql:host=localhost;dbname=bbs';
+    $username = 'root';
+    $password = '';
     $messages = array();
 
     try {
@@ -17,13 +21,15 @@
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             
         // PDO::fetch()でカレント1件を取得
-        $stmt = $pdo->query('SELECT * FROM messages');
+        $stmt = $pdo->query('SELECT * FROM messages order by id desc');
         // $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+    
         $messages = $stmt->fetchAll();
     } catch (PDOException $e) {
         echo 'PDO exception: ' . $e->getMessage();
         exit;
     }
+    
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -54,7 +60,7 @@
                     </tr>
                 <?php foreach($messages as $message){ ?>
                     <tr>
-                        <td><?php print $message['id']; ?></td>
+                        <td><a href="show.php?id=<?php print $message['id']; ?>"><?php print $message['id']; ?></a></td>
                         <td><?php print $message['name']; ?></td>
                         <td><?php print $message['title']; ?></td>
                         <td><?php print $message['body']; ?></td>

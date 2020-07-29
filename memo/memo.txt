@@ -62,3 +62,5 @@ dbname: heroku_5774074b0e1fbed
 
 mysql -h us-cdbr-east-02.cleardb.com -u be98aadb1041f4 -p
 dd672692 [Enter]
+
+プログラム書き換え

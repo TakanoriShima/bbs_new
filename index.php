@@ -49,7 +49,7 @@
                 <h1 class=" col-sm-12 text-center">投稿一覧</h1>
             </div>
             <div class="row mt-2">
-                <table class="col-sm-12 table table-bordered table-sprited">
+                <table class="col-sm-12 table table-bordered table-striped">
                     <tr>
                         <th>ID</th>
                         <th>ユーザ名</th>

@@ -34,12 +34,17 @@
         }
     }else{
         
+        $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
+        $username = 'be98aadb1041f4';
+        $password = 'dd672692';
+        $messages = array();
+        $flash_message = "";
         $message_id = $_POST['id'];
         // print $message_id;
-        $dsn = 'mysql:host=localhost;dbname=bbs';
-        $username = 'root';
-        $password = '';
-        $flash_message = null;
+        // $dsn = 'mysql:host=localhost;dbname=bbs';
+        // $username = 'root';
+        // $password = '';
+        // $flash_message = null;
     
         try {
         

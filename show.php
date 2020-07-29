@@ -141,7 +141,7 @@
                             <button type="submit" name="kind_method" value="update" class="btn btn-primary">更新</button>
                         </div>
                         <div class="col-sm-1">
-                            <button type="submit" name="kind_method" value="delete" class="btn btn-danger">削除</button>
+                            <button type="submit" name="kind_method" value="delete" class="btn btn-danger" onclick="return confirm('投稿を削除します。よろしいですか？')">削除</button>
                         </div>
                     </div>
                 </form>

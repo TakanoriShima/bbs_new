@@ -5,6 +5,8 @@
         $username = 'root';
         $password = '';
         $message = "";
+        $image_dir = "upload/";
+        
         // テストプログラム
         // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
         // $username = 'be98aadb1041f4';
@@ -44,10 +46,12 @@
         $dsn = 'mysql:host=localhost;dbname=bbs';
         $username = 'root';
         $password = '';
+        
         // $flash_message = null;
     
         try {
         
+            $image_dir = "upload/";
             $options = array(
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
@@ -56,31 +60,81 @@
             
             $pdo = new PDO($dsn, $username, $password, $options);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            
+            $name = $_POST['name'];
+            $title = $_POST['title'];
+            $body = $_POST['body'];
                 
             if($_POST['kind_method'] === 'update'){
-                // print 'update!'; 
-                $name = $_POST['name'];
-                $title = $_POST['title'];
-                $body = $_POST['body'];
-                // print $name;
-                // PDO::fetch()でカレント1件を取得
-                $stmt = $pdo->prepare('UPDATE messages set name=:name, title=:title, body=:body where id = :id');
-                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
-                $stmt->bindParam(':title', $title, PDO::PARAM_STR);
-                $stmt->bindParam(':body', $body, PDO::PARAM_STR);
-                $stmt->bindValue(':id', $message_id, PDO::PARAM_INT);
-                $stmt->execute();
-                $flash_message = "投稿が更新されました。";
-                $_SESSION['flash_message'] = $flash_message;
+                
+                if (!empty($_FILES['image']['name'])) {//ファイルが選択されていれば$imageにファイル名を代入
+                
+                
+                    $image_dir = "upload/";
+                    $stmt = $pdo->prepare('SELECT * FROM messages where id = :id');
+                    $stmt->bindValue(':id', $message_id, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $message = $stmt->fetch();
+                    $del_image = $message['image'];
+                
+                    $image = uniqid(mt_rand(), true); //ファイル名をユニーク化
+                    $image .= '.' . substr(strrchr($_FILES['image']['name'], '.'), 1);//アップロードされたファイルの拡張子を取得
+                    $file = $image_dir . $image;
+                    print $file;
+                
+                    move_uploaded_file($_FILES['image']['tmp_name'], $file);//uploadディレクトリにファイル保存
+                    // PDO::fetch()でカレント1件を取得
+                    // print 'update!';
+                    // print $name;
+                    // PDO::fetch()でカレント1件を取得
+                  
+                        
+                    
+                    $stmt = $pdo->prepare('UPDATE messages set name=:name, title=:title, body=:body, image=:image where id = :id');
+                    $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+                    $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+                    $stmt->bindParam(':body', $body, PDO::PARAM_STR);
+                    $stmt->bindValue(':id', $message_id, PDO::PARAM_INT);
+                    $stmt->bindParam(':image', $image, PDO::PARAM_STR);
+                    
+                    $stmt->execute();
+                    unlink($image_dir . $del_image);
+                    $flash_message = "投稿が更新されました。";
+                    $_SESSION['flash_message'] = $flash_message;
+                    
+                }else{
+                    
+                   
+                    
+                    
+                    $stmt = $pdo->prepare('UPDATE messages set name=:name, title=:title, body=:body where id = :id');
+                    $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+                    $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+                    $stmt->bindParam(':body', $body, PDO::PARAM_STR);
+                    $stmt->bindValue(':id', $message_id, PDO::PARAM_INT);
+                    
+                    $stmt->execute();
+                    $flash_message = "投稿が更新されました。";
+                    $_SESSION['flash_message'] = $flash_message;
+                }
                 
             }else if($_POST['kind_method'] === 'delete'){
+                $image_dir = "upload/";
+                $stmt = $pdo->prepare('SELECT * FROM messages where id = :id');
+                $stmt->bindValue(':id', $message_id, PDO::PARAM_INT);
+                $stmt->execute();
+                $message = $stmt->fetch();
+                $del_image = $message['image'];
+                
                 
                 // print 'delete!';
                 // PDO::fetch()でカレント1件を取得
                 $stmt = $pdo->prepare('DELETE FROM messages where id = :id');
                 $stmt->bindValue(':id', $message_id, PDO::PARAM_INT);
                 $stmt->execute();
+                unlink($image_dir . $del_image);
                 $flash_message = "投稿が削除されました。";
+          
                 $_SESSION['flash_message'] = $flash_message;
             }    
             
@@ -110,6 +164,9 @@
                 color: red;
                 background-color: pink;
             }
+            img{
+                width: 60%;
+            }
         </style>
     </head>
     <body>
@@ -118,7 +175,7 @@
                 <h1 class="text-center col-sm-12">id: <?php print $message_id; ?> の投稿詳細</h1>
             </div>
             <div class="row mt-2">
-                <form class="col-sm-12" action="show.php" method="POST">
+                <form class="col-sm-12" action="show.php" method="POST" enctype="multipart/form-data">
                
                     <!-- 1行 -->
                     <div class="form-group row">
@@ -143,9 +200,28 @@
                             <input type="text" class="form-control" name="body" required value="<?php print $message['body']; ?>">
                         </div>
                     </div>
+                    
+                    <div class="form-group row">
+                        <label class="col-2 col-form-label">現在の画像</label>
+                        <div class="col-10">
+                            <img src="<?php print $image_dir . $message['image']; ?>">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label class="col-2 col-form-label">画像アップロード</label>
+                        <div class="col-10">
+                            <input type="file" name="image">
+                        </div>
+                    </div>
+                    
+                    
                     <div class="row">
                         <input type="hidden" name="id" value="<?php print $message['id']; ?>">
                     </div>
+                
+                   
+                
                 
                     <!-- 1行 -->
                     <div class="form-group row">

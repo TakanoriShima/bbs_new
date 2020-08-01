@@ -24,6 +24,7 @@ id int primary key auto_increment,
 name varchar(50) not null,
 title varchar(50) not null,
 body varchar(100) not null,
+image varchar(100) not null,
 created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 

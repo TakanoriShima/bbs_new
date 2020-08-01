@@ -65,6 +65,7 @@
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
             </div>
             <div class="row mt-2">
+                <?php if(count($messages) !== 0){ ?> 
                 <table class="col-sm-12 table table-bordered table-striped">
                     <tr>
                         <th>ID</th>
@@ -84,6 +85,9 @@
                     </tr>
                 <?php } ?>
                 </table>
+                <?php }else{ ?>
+                    <p>データ一件もありません。</p>
+                <?php } ?>
             </div>
             <div class="row mt-5">
                 <a href="new.php" class="btn btn-primary">新規投稿</a>

@@ -205,7 +205,7 @@
                     <div class="form-group row">
                         <label class="col-2 col-form-label">現在の画像</label>
                         <div class="col-10">
-                            <img src="<?php print $image_dir . $message['image']; ?>">
+                            <img src="<?php if(file_exists($image_dir . $message['image'])){ print $image_dir . $message['image']; }else{ print 'no-image.png';} ?>" alt="表示する画像がありません。">
                         </div>
                     </div>
                     

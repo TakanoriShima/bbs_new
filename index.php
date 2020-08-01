@@ -2,15 +2,18 @@
     
     session_start();
     // テストプログラム
-    $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
-    $username = 'be98aadb1041f4';
-    $password = 'dd672692';
+    // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
+    // $username = 'be98aadb1041f4';
+    // $password = 'dd672692';
+    // $messages = array();
+    
+  
+    $dsn = 'mysql:host=localhost;dbname=bbs';
+    $username = 'root';
+    $password = '';
     $messages = array();
-    // $flash_message = "";
-    // $dsn = 'mysql:host=localhost;dbname=bbs';
-    // $username = 'root';
-    // $password = '';
-    $messages = array();
+
+    $flash_message = "";
 
     try {
     
@@ -23,15 +26,15 @@
         $pdo = new PDO($dsn, $username, $password, $options);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             
-        // PDO::fetch()でカレント1件を取得
         $stmt = $pdo->query('SELECT * FROM messages order by id desc');
-        // $stmt->bindParam(':id', $id, PDO::PARAM_STR);
     
         $messages = $stmt->fetchAll();
+        
         if(isset($_SESSION['flash_message']) === true){
             $flash_message = $_SESSION['flash_message'];
             $_SESSION['flash_message'] = null;
         }
+        
     } catch (PDOException $e) {
         echo 'PDO exception: ' . $e->getMessage();
         exit;
@@ -65,7 +68,7 @@
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
             </div>
             <div class="row mt-2">
-                <?php if(count($messages) !== 0){ ?> 
+            <?php if(count($messages) !== 0){ ?> 
                 <table class="col-sm-12 table table-bordered table-striped">
                     <tr>
                         <th>ID</th>
@@ -85,17 +88,14 @@
                     </tr>
                 <?php } ?>
                 </table>
-                <?php }else{ ?>
+            <?php }else{ ?>
                     <p>データ一件もありません。</p>
-                <?php } ?>
+            <?php } ?>
             </div>
             <div class="row mt-5">
                 <a href="new.php" class="btn btn-primary">新規投稿</a>
             </div> 
         </div>
-        
-        
-        
         
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS, then Font Awesome -->

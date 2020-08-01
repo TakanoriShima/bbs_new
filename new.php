@@ -1,17 +1,17 @@
 <?php
     // テストプログラム
-    $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
-    $username = 'be98aadb1041f4';
-    $password = 'dd672692';
+    // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
+    // $username = 'be98aadb1041f4';
+    // $password = 'dd672692';
+
+    $dsn = 'mysql:host=localhost;dbname=bbs';
+    $username = 'root';
+    $password = '';
+    
+    $image_dir = "upload/";
     $messages = array();
     $flash_message = "";
     
-    // $dsn = 'mysql:host=localhost;dbname=bbs';
-    // $username = 'root';
-    // $password = '';
-    // $messages = array();
-    // $flash_message = "";
-    $image_dir = "upload/";
     
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
         session_start();
@@ -31,16 +31,6 @@
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             
             
-            // if (!empty($_FILES['image']['name'])) {//ファイルが選択されていれば$imageにファイル名を代入
-            //     move_uploaded_file($_FILES['image']['tmp_name'], $file);//imagesディレクトリにファイル保存
-            //     if (exif_imagetype($file)) {//画像ファイルかのチェック
-            //         $message = '画像をアップロードしました';
-            //         $stmt->execute();
-            //     } else {
-            //         $message = '画像ファイルではありません';
-            //     }
-            // }
-            
             if (!empty($_FILES['image']['name'])) {//ファイルが選択されていれば$imageにファイル名を代入
             
                 $image = uniqid(mt_rand(), true); //ファイル名をユニーク化
@@ -48,23 +38,22 @@
                 $file = $image_dir . $image;
             
                 move_uploaded_file($_FILES['image']['tmp_name'], $file);//uploadディレクトリにファイル保存
-                // PDO::fetch()でカレント1件を取得
+                
+        
                 $stmt = $pdo -> prepare("INSERT INTO messages (name, title, body, image) VALUES (:name, :title, :body, :image)");
                 $stmt->bindParam(':name', $name, PDO::PARAM_STR);
                 $stmt->bindParam(':title', $title, PDO::PARAM_STR);
-                $stmt->bindValue(':body', $body, PDO::PARAM_STR);
+                $stmt->bindParam(':body', $body, PDO::PARAM_STR);
                 $stmt->bindValue(':image', $image, PDO::PARAM_STR);
                 
                 $stmt->execute();
+                
                 $flash_message = "投稿が成功しました。";
                 $_SESSION['flash_message'] = $flash_message;
+                
                 header('Location: index.php');
             
             }
-            
-            
-            
-                
             
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
@@ -157,9 +146,9 @@
         <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"></script>
         <script>
             document.querySelector('.form-file-input').addEventListener('change', function(e) {
-    var input = document.querySelector('.form-file-input').files[0];
-    document.querySelector('.form-file-text').textContent = input.name;
-}, false);
+                var input = document.querySelector('.form-file-input').files[0];
+                document.querySelector('.form-file-text').textContent = input.name;
+            }, false);
         </script>
     </body>
 </html>

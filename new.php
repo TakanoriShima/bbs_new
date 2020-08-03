@@ -8,7 +8,7 @@
     $username = 'root';
     $password = '';
     
-    // $image_dir = "upload/";
+    $image_dir = "upload/";
     // $messages = array();
     // $flash_message = "";
     

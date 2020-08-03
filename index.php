@@ -8,10 +8,10 @@
     // $messages = array();
     
   
-    // $dsn = 'mysql:host=localhost;dbname=bbs';
-    // $username = 'root';
-    // $password = '';
-    // $messages = array();
+    $dsn = 'mysql:host=localhost;dbname=bbs';
+    $username = 'root';
+    $password = '';
+    $messages = array();
 
     $flash_message = "";
 

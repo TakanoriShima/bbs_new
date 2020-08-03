@@ -4,13 +4,13 @@
         $message_id = $_GET['id'];
         
         // テストプログラム
-        $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
-        $username = 'be98aadb1041f4';
-        $password = 'dd672692';
+        // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
+        // $username = 'be98aadb1041f4';
+        // $password = 'dd672692';
         
-        // $dsn = 'mysql:host=localhost;dbname=bbs';
-        // $username = 'root';
-        // $password = '';
+        $dsn = 'mysql:host=localhost;dbname=bbs';
+        $username = 'root';
+        $password = '';
       
         $image_dir = "upload/";
         $message = "";

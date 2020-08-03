@@ -2,16 +2,16 @@
     
     session_start();
     // テストプログラム
-    $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
-    $username = 'be98aadb1041f4';
-    $password = 'dd672692';
-    $messages = array();
+    // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
+    // $username = 'be98aadb1041f4';
+    // $password = 'dd672692';
+    // $messages = array();
     
   
-    $dsn = 'mysql:host=localhost;dbname=bbs';
-    $username = 'root';
-    $password = '';
-    $messages = array();
+    // $dsn = 'mysql:host=localhost;dbname=bbs';
+    // $username = 'root';
+    // $password = '';
+    // $messages = array();
 
     $flash_message = "";
 

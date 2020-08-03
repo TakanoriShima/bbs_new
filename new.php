@@ -4,13 +4,13 @@
     $username = 'be98aadb1041f4';
     $password = 'dd672692';
 
-    // $dsn = 'mysql:host=localhost;dbname=bbs';
-    // $username = 'root';
-    // $password = '';
+    $dsn = 'mysql:host=localhost;dbname=bbs';
+    $username = 'root';
+    $password = '';
     
-    $image_dir = "upload/";
-    $messages = array();
-    $flash_message = "";
+    // $image_dir = "upload/";
+    // $messages = array();
+    // $flash_message = "";
     
     
     if($_SERVER['REQUEST_METHOD'] === 'POST'){

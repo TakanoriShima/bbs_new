@@ -120,12 +120,13 @@
                     
                     <div class="form-group row">
                         <label class="col-2 col-form-label">画像アップロード</label>
-                        <div class="col-10">
-                            <input type="file" name="image" class="" required>
+                        <div class="col-3">
+                            <input type="file" name="image" accept='image/*' onchange="previewImage(this);"　class="" required　>
+                        </div>
+                        <div class="col-7">
+                            <img id="preview" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="max-width:200px;">
                         </div>
                     </div>
-                    
-                    
                     
                     <!-- 1行 -->
                     <div class="form-group row">
@@ -148,10 +149,14 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"></script>
         <script>
-            document.querySelector('.form-file-input').addEventListener('change', function(e) {
-                var input = document.querySelector('.form-file-input').files[0];
-                document.querySelector('.form-file-text').textContent = input.name;
-            }, false);
+            function previewImage(obj)
+            {
+            	var fileReader = new FileReader();
+            	fileReader.onload = (function() {
+            		document.getElementById('preview').src = fileReader.result;
+            	});
+            	fileReader.readAsDataURL(obj.files[0]);
+            }
         </script>
     </body>
 </html>

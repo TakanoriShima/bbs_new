@@ -7,6 +7,13 @@
     // $password = 'dd672692';
     // $messages = array();
     
+    // Xfree
+    // $dsn = 'mysql:host=mysql1.php.xdomain.ne.jp;dbname=quark2galaxy_bbs';
+    // $username = 'quark2galaxy_bbs';
+    // $password = 'mmEL78rT';
+    //サーバ: mysql1.php.xdomain.ne.jp via TCP/IP
+    //ユーザ: quark2galaxy_bbs@sv3.php.xdomain.ne.jp
+    
   
     $dsn = 'mysql:host=localhost;dbname=bbs';
     $username = 'root';

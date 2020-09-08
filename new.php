@@ -7,6 +7,9 @@
     $dsn = 'mysql:host=localhost;dbname=bbs';
     $username = 'root';
     $password = '';
+    // $dsn = 'mysql:host=mysql1.php.xdomain.ne.jp;dbname=quark2galaxy_bbs';
+    // $username = 'quark2galaxy_bbs';
+    // $password = 'mmEL78rT';
     
     $image_dir = "upload/";
     // $messages = array();

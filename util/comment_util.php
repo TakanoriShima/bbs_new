@@ -21,9 +21,9 @@ class comment_util{
     // message_idを指定して、全テーブル情報を取得するメソッド
     public function get_all_comemnts_by_message_id($message_id){
         $pdo = $this->get_connection();
-        //$stmt = $pdo->prepare('SELECT messages.id AS message_id, comments.id AS comment_id, comments.name AS name, comments.content AS comment, comments.created_at AS created_at FROM comments JOIN messages ON comments.message_id = messages.id WHERE comments.message_id=:message_id ORDER BY comments.id DESC');
+        
         $stmt = $pdo->prepare("SELECT * FROM comments WHERE message_id=:message_id");
-        print $message_id;
+
         $stmt->bindParam(':message_id', $message_id, PDO::PARAM_INT);
         $stmt->execute();
         // フェッチの結果を、messageクラスのインスタンスにマッピングする

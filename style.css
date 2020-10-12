@@ -12,9 +12,20 @@ h2{
     background-color: pink;
     border-radius: 20px;
 }
+h3{
+    border: solid 2px blue;
+    color: blue;
+    width: 20%;
+    margin: 0 auto;
+    padding: 10px;
+    border-radius: 30px;
+}
 p{
     color: blue;
 }
 img{
     width: 30%;
+}
+th{
+    width: 20%;
 }

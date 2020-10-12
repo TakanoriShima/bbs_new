@@ -50,13 +50,13 @@ use bbs;
 show tables;
 
 create table messages(
-id int primary key auto_increment, 
-name varchar(50) not null,
-title varchar(50) not null,
-body varchar(100) not null,
-image varchar(100) not null,
-password varchar(50) not null,
-created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    id int primary key auto_increment, 
+    name varchar(50) not null,
+    title varchar(50) not null,
+    body varchar(100) not null,
+    image varchar(100) not null,
+    password varchar(50) not null,
+    created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 show tables;
@@ -64,3 +64,19 @@ describe messages;
 
 insert into messages(name, title, body) values("山田", "初めての投稿", "Herokuにデプロイできるかな？");
 select * from messages;
+
+create table comments (
+    id int primary key auto_increment,
+    message_id int not null,
+    name varchar(50) not null,
+    content varchar(100) not null, 
+    created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    foreign key(message_id) references messages(id)
+    on delete cascade
+    on update cascade
+); 
+
+insert into comments(message_id, name, content) values(7, "a", "b");
+insert into comments(message_id, name, content) values(7, "c", "d");
+INSERT INTO comments (message_id, name, content) VALUES (:message_id, :name, :content)
+INSERT INTO comments (message_id, name, content) VALUES (:message_id, :name, :content)

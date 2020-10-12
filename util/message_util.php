@@ -21,7 +21,7 @@ class message_util{
     // 全テーブル情報を取得するメソッド
     public function get_all_messages(){
         $pdo = $this->get_connection();
-        $stmt = $pdo->query('SELECT * FROM messages order by id desc');
+        $stmt = $pdo->query('SELECT * FROM messages ORDER BY id DESC');
         // フェッチの結果を、messageクラスのインスタンスにマッピングする
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'message');
         $messages = $stmt->fetchAll();
@@ -33,7 +33,7 @@ class message_util{
     // id値からデータを抜き出すメソッド
     public function get_message_by_id($id){
         $pdo = $this->get_connection();
-        $stmt = $pdo->prepare('SELECT * FROM messages where id = :id');
+        $stmt = $pdo->prepare('SELECT * FROM messages WHERE id = :id');
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'message');
@@ -46,7 +46,7 @@ class message_util{
     // 画像ファイル名を取得するメソッド（uploadフォルダ内のファイルを物理削除するため）
     public function get_image_name_by_id($id){
         $pdo = $this->get_connection();
-        $stmt = $pdo->prepare('SELECT * FROM messages where id = :id');
+        $stmt = $pdo->prepare('SELECT * FROM messages WHERE id = :id');
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         
@@ -66,8 +66,8 @@ class message_util{
         $stmt->bindParam(':name', $message->name, PDO::PARAM_STR);
         $stmt->bindParam(':title', $message->title, PDO::PARAM_STR);
         $stmt->bindParam(':body', $message->body, PDO::PARAM_STR);
-        $stmt->bindValue(':image', $message->image, PDO::PARAM_STR);
-        $stmt->bindValue(':password', $message->password, PDO::PARAM_STR);
+        $stmt->bindParam(':image', $message->image, PDO::PARAM_STR);
+        $stmt->bindParam(':password', $message->password, PDO::PARAM_STR);
         $stmt->execute();
         $this->close_connection($pdo, $stmp);
         
@@ -78,7 +78,7 @@ class message_util{
     public function update($id, $message){
         $pdo = $this->get_connection();
         $image = $this->get_image_name_by_id($id);
-        $stmt = $pdo->prepare('UPDATE messages set name=:name, title=:title, body=:body, image=:image where id = :id');
+        $stmt = $pdo->prepare('UPDATE messages SET name=:name, title=:title, body=:body, image=:image WHERE id = :id');
                         
         $stmt->bindParam(':name', $message->name, PDO::PARAM_STR);
         $stmt->bindParam(':title', $message->title, PDO::PARAM_STR);
@@ -100,7 +100,7 @@ class message_util{
         $pdo = $this->get_connection();
         $image = $this->get_image_name_by_id($id);
         
-        $stmt = $pdo->prepare('DELETE FROM messages where id = :id');
+        $stmt = $pdo->prepare('DELETE FROM messages WHERE id = :id');
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         
         $stmt->execute();

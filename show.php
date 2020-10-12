@@ -1,6 +1,7 @@
 <?php
     // 外部ファイルの読み込み
     require_once 'util/message_util.php';
+    require_once 'util/comment_util.php';
     
     // セッションスタート
     session_start();
@@ -23,87 +24,55 @@
         $_SESSION['flash_message'] = null;
     }
 
+
+    // POST通信の時 (= 更新、もしくは削除ボタンが押された時)  
+    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        
+        // 例外処理
+        try {
+            // 入力された値を取得
+            $name = $_POST['name'];
+            $content = $_POST['content'];
+                    
+            // データベースを扱う便利なインスタンス生成
+            $comment_util = new comment_util();
+
+            // 新しいコメントインスタンス作成
+            $comment = new comment($id, $name, $content);
+            $comment_util->insert($comment);             
+                   
+            // セッションにフラッシュメッセージをセット 
+            $_SESSION['flash_message'] = "コメントが投稿されました。";
+            
+            // 画面遷移
+            header('Location: show.php?id=' . $id);
+
+        } catch (PDOException $e) {
+            echo 'PDO exception: ' . $e->getMessage();
+            exit;
+        }
+   
+    }
+
     // 例外処理
     try {
         // データベースを扱う便利なインスタンス生成
         $message_util = new message_util();
         // テーブルから1件のデータを取得
         $message = $message_util->get_message_by_id($id);
-        
+       
         // 便利なインスタンス削除
         $message_util = null;
         
+        $comment_util = new comment_util();
+        $comments = $comment_util->get_all_comemnts_by_message_id($id);
+        $comment_util = null;
+  
     } catch (PDOException $e) {
         echo 'PDO exception: ' . $e->getMessage();
         exit;
     }
     
-    // POST通信の時 (= 更新、もしくは削除ボタンが押された時)  
-    if($_SERVER['REQUEST_METHOD'] === 'POST'){
-
-        // 入力されたパスワード取得
-        $password = $_POST['password'];
-        
-        try {
-            // パスワードが正しいのならば
-            if($password === $message->password){
-                // 更新ボタンが押されたならば
-                if($_POST['kind_method'] === 'update'){
-                    
-                    // 入力された値を取得
-                    $name = $_POST['name'];
-                    $title = $_POST['title'];
-                    $body = $_POST['body'];
-                    
-                    // 画像をアップロード
-                    // データベースを扱う便利なインスタンス生成
-                    $message_util = new message_util();
-                    $image = $message_util->upload($_FILES);
-            
-                    // 画像が選択されていないならば、画像ファイル名には現在の名前をセット
-                    if($image === null){
-                        $image = $message->image;
-                    }
-                
-                    // 新しいメッセージインスタンス作成
-                    $update_message = new message($name, $title, $body, $image, $password);
-                    
-                    // 更新処理
-                    $message_util->update($id, $update_message);
-                    
-                    // 便利なインスタンス削除
-                    $message_util = null;
-                   
-                    // セッションにフラッシュメッセージをセット 
-                    $_SESSION['flash_message'] = "投稿が更新されました。";
-                    
-                    // トップ画面に遷移
-                    header('Location: index.php');
-
-                 // 削除ボタンが押されたならば
-                }else if($_POST['kind_method'] === 'delete'){
-                    // データベースを扱う便利なインスタンス生成
-                    $message_util = new message_util();
-                    
-                    // 削除処理
-                    $message_util->delete($id);
-                    
-                    // 便利なインスタンス削除
-                    $message_util = null;
-                    
-                    $_SESSION['flash_message'] = "投稿が削除されました。";
-                    header('Location: index.php');
-                }    
-            }else{
-                $_SESSION['flash_message'] = "パスワードが間違えています。";
-                header('Location: show.php?id=' . $id);
-            }
-            
-        } catch (PDOException $e) {
-            echo 'PDO exception: ' . $e->getMessage();
-            exit;
-        }
-    }
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -125,76 +94,101 @@
                 <h1 class="text-center col-sm-12 mt-2">id: <?php print $id; ?> の投稿詳細</h1>
             </div>
             <div class="row mt-2">
-                <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
+                <h4 class="text-center col-sm-12"><a href="edit.php?id=<?php print $id; ?>" class="btn btn-primary">更新・削除ページへ</a></h4>
             </div>
             <div class="row mt-2">
-                <form class="col-sm-12" action="show.php" method="POST" enctype="multipart/form-data">
-               
-                    <!-- 1行 -->
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label">名前</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" name="name" required value="<?php print $message->name; ?>">
-                        </div>
-                    </div>
-                
-                    <!-- 1行 -->
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label">タイトル</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" name="title" required value="<?php print $message->title; ?>";>
-                        </div>
-                    </div>
-                    
-                    <!-- 1行 -->
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">内容</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" name="body" required value="<?php print $message->body; ?>">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label">現在の画像</label>
-                        <div class="col-10">
-                            
-                            <img src="<?php if(file_exists(IMAGE_DIR . $message->image)){ print IMAGE_DIR . $message->image; }else{ print 'no-image.png';} ?>" alt="表示する画像がありません。">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label">画像アップロード</label>
-                        <div class="col-2">
-                            <input type="file" name="image" accept='image/*' onchange="previewImage(this);">
-                        </div>
-                        <canvas id="canvas" class="offset-sm-4 col-2" width="0" height="0"></canvas>
-                    </div>
-                    
-                    
+                <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
+            </div>
+            <div class="row mt-3">
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th class="text-center">投稿者</th>
+                        <td class="text-center"><?php print $message->name; ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-center">投稿日時</th>
+                        <td class="text-center"><?php print $message->created_at; ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-center">タイトル</th>
+                        <td class="text-center"><?php print $message->title; ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-center">内容</th>
+                        <td class="text-center"><?php print $message->body; ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-center">画像</th>
+                        <td class="text-center">
+                            <img src="<?php print IMAGE_DIR . $message-> image?>">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="row mt-2">
+                <h3 class="text-center offset-sm-2 col-sm-8 mt-2">コメント一覧</h3>
+            </div>
+            <!--データが1件でもあれば-->
+            <?php if(count($comments) !== 0){ ?> 
+            <div class="row mt-4">
+                <p class="offset-sm-2 col-sm-8"><?php print count($comments); ?>件</p>
+            </div>
+            <div class="row mt-2">
+                <table class="offset-sm-2 col-sm-8 table table-bordered table-striped">
+                    <tr>
+                        <th>ID</th>
+                        <th>ユーザ名</th>
+                        <th>コメント</th>
+                        <th>投稿時間</th>
+                    </tr>
+                    </tr>
+                <?php foreach($comments as $comment){ ?>
+                    <tr>
+                        <td><?php print $comment->id; ?></a></td>
+                        <td><?php print $comment->name; ?></td>
+                        <td><?php print $comment->content; ?></td>
+                        <td><?php print $message->created_at; ?></td>
+                    </tr>
+                <?php } ?>
+                </table>
+            </div>
+            <?php }else{ ?>
+             <div class="row mt-4">
+                <p class="offset-sm-2 col-sm-8">コメントはまだありません。</p>
+            </div>
+            <?php } ?>
+
+            <div class="row mt-2 comments">
+                <form class="offset-sm-2 col-sm-8" action="show.php" method="POST">
                     <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-4 col-form-label">名前</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="name" required value="<?php print ""; ?>">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="col-sm-6 col-form-label">コメント</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="content" required value="<?php print ""; ?>">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3 mt-3">
+                            <label class="col-sm-6 col-form-label"></label>
+                            <div class="col-sm-12">
+                                <button type="submit" class="form-control btn btn-primary">投稿</button>
+                            </div>
+                        </div>
                         <input type="hidden" name="id" value="<?php print $message->id; ?>">
                     </div>
-                    
-                    <div class="row">
-                        <label class="form-group col-2 col-form-label">更新・削除パスワード</label>
-                        <div class="col-10">
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                    </div>
-                
-                    <!-- 1行 -->
-                    <div class="form-group row mt-3">
-                        <div class="offset-sm-3 col-sm-4">
-                            <button type="submit" name="kind_method" value="update" class="form-control btn btn-primary">更新</button>
-                        </div>
-                        <div class="col-sm-4">
-                            <button type="submit" name="kind_method" value="delete" class="form-control btn btn-danger" onclick="return confirm('投稿を削除します。よろしいですか？')">削除</button>
-                        </div>
-                    </div>
                 </form>
+            </div>
+                   
              <div class="row mt-5">
                 <a href="index.php" class="btn btn-primary">投稿一覧へ</a>
             </div>
+            
         </div>
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS, then Font Awesome -->

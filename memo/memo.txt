@@ -1,3 +1,5 @@
+# ---- 環境設定 ---- #
+
 # PHP 設定
 php --version
 # PHP 5.6.40 (cli) (built: Oct 31 2019 20:35:16) 
@@ -9,6 +11,22 @@ mysql --version
 # 日本語設定
 sed -e "/utf8/d" -e "/client/d" -e "/^\[mysqld_safe\]$/i character-set-server=utf8\n\n[client]\ndefault-character-set=utf8" /etc/my.cnf |sudo tee /etc/my.cnf
 
+$ 日本時間設定
+date
+echo "Asia/Tokyo" | sudo tee /etc/timezone
+sudo mysql_tzinfo_to_sql /usr/share/zoneinfo
+sudo cp /etc/sysconfig/clock /etc/sysconfig/clock.org
+sudo vi /etc/sysconfig/clock
+## 書き換え
+ZONE="Asia/Tokyo"
+UTC=true
+
+sudo ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+sudo reboot
+
+sudo service mysqld restart
+
+# PDO 設定
 php -m | grep pdo
 # pdo_mysql
 # pdo_sqlite
@@ -16,8 +34,20 @@ php -m | grep pdo
 # pdo_mysql がない場合
 sudo yum -y install php71 php71-mbstring php71-pdo
 
+## ---- データベース構築 ---- # 
+
 # MySQL
+
+sudo service mysqld start
+mysql -u root
+
+show databases;
 create database bbs character set utf8;
+show databases;
+
+use bbs;
+
+show tables;
 
 create table messages(
 id int primary key auto_increment, 
@@ -25,43 +55,12 @@ name varchar(50) not null,
 title varchar(50) not null,
 body varchar(100) not null,
 image varchar(100) not null,
+password varchar(50) not null,
 created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+show tables;
+describe messages;
+
 insert into messages(name, title, body) values("山田", "初めての投稿", "Herokuにデプロイできるかな？");
-
-Heroku deploy
-
-wget https://cli-assets.heroku.com/heroku-linux-x64.tar.gz -O heroku.tar.gz
-sudo mkdir -p /usr/local/lib/heroku
-sudo tar --strip-components 1 -zxvf heroku.tar.gz -C /usr/local/lib/heroku
-sudo ln -s /usr/local/lib/heroku/bin/heroku /usr/local/bin/heroku
-
-heroku login -i
-heroku create bbs-php-pdo
-
-git remote -v
-
-git push heroku master
-
-heroku config:add TZ=Asia/Tokyo
-heroku run date
-
-heroku addons:create cleardb:ignite --app bbs-php-pdo
-
-heroku config --app bbs-php-pdo | grep CLEARDB_DATABASE_URL
-
-CLEARDB_DATABASE_URL: mysql://be98aadb1041f4:dd672692@us-cdbr-east-02.cleardb.com/heroku_5774074b0e1fbed?reconnect=true
-# CLEARDB_DATABASE_URL: mysql://(ユーザ名):(パスワード)@(ドメイン)/(データベース名)?reconnect=true
-
-user_name: be98aadb1041f4
-password: dd672692
-domain_name: us-cdbr-east-02.cleardb.com
-dbname: heroku_5774074b0e1fbed
-
-# heroku config:add CLEARDB_DATABASE_URL='mysql://(ユーザ名):(パスワード)@(ドメイン)/(データベース名)?reconnect=true&useSSL=false&useUnicode=true&characterEncoding=utf8&characterSetResults=utf8'
-
-mysql -h us-cdbr-east-02.cleardb.com -u be98aadb1041f4 -p
-dd672692 [Enter]
-
-プログラム書き換え
+select * from messages;

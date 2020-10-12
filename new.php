@@ -1,69 +1,50 @@
 <?php
-    // テストプログラム
-    // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
-    // $username = 'be98aadb1041f4';
-    // $password = 'dd672692';
-
-    $dsn = 'mysql:host=localhost;dbname=bbs';
-    $username = 'root';
-    $password = '';
-    // $dsn = 'mysql:host=mysql1.php.xdomain.ne.jp;dbname=quark2galaxy_bbs';
-    // $username = 'quark2galaxy_bbs';
-    // $password = 'mmEL78rT';
+    // 外部ファイルの読み込み
+    require_once 'util/message_util.php';
     
-    $image_dir = "upload/";
-    // $messages = array();
-    // $flash_message = "";
+    // セッション開始
+    session_start();
     
+    // 変数の初期化
+    $flash_message = "";
     
+    // POST通信ならば（= 新規投稿ボタンが押された時）
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        session_start();
+
+        // フォームからの入力値を取得
         $name = $_POST['name'];
         $title = $_POST['title'];
         $body = $_POST['body'];
+        $password = $_POST['password'];
         
+        // 例外処理
         try {
-    
-            $options = array(
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-            ); 
             
-            $pdo = new PDO($dsn, $username, $password, $options);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            // データベースを扱う便利なインスタンス生成
+            $message_util = new message_util();
+            // 画像ファイルの物理的アップロード処理
+            $image = $message_util->upload($_FILES);
             
+            // 新しいメッセージインスタンスを生成
+            $message = new message($name, $title, $body, $image, $password);
+
+            // データベースにデータを1件保存
+            $message_util->insert($message);
             
-            if (!empty($_FILES['image']['name'])) {//ファイルが選択されていれば$imageにファイル名を代入
+            // 便利なインスタンス削除
+            $message_util = null;
+                    
+            // セッションにフラッシュメッセージを保存        
+            $_SESSION['flash_message'] = "投稿が成功しました。";
             
-                $image = uniqid(mt_rand(), true); //ファイル名をユニーク化
-                $image .= '.' . substr(strrchr($_FILES['image']['name'], '.'), 1);//アップロードされたファイルの拡張子を取得
-                $file = $image_dir . $image;
-            
-                move_uploaded_file($_FILES['image']['tmp_name'], $file);//uploadディレクトリにファイル保存
-                
-        
-                $stmt = $pdo -> prepare("INSERT INTO messages (name, title, body, image) VALUES (:name, :title, :body, :image)");
-                $stmt->bindParam(':name', $name, PDO::PARAM_STR);
-                $stmt->bindParam(':title', $title, PDO::PARAM_STR);
-                $stmt->bindParam(':body', $body, PDO::PARAM_STR);
-                $stmt->bindValue(':image', $image, PDO::PARAM_STR);
-                
-                $stmt->execute();
-                
-                $flash_message = "投稿が成功しました。";
-                $_SESSION['flash_message'] = $flash_message;
-                
-                header('Location: index.php');
-            
-            }
-            
+            // 画面遷移
+            header('Location: index.php');
+
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
             exit;
         }
     }
-
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -74,20 +55,14 @@
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="style.css">
         <link rel="shortcut icon" href="favicon.ico">
-
         <title>新規投稿</title>
-        <style>
-            h2{
-                color: red;
-                background-color: pink;
-            }
-        </style>
     </head>
     <body>
         <div class="container">
             <div class="row mt-2">
-                <h1 class="text-center col-sm-12">新規投稿</h1>
+                <h1 class="text-center col-sm-12 mt-2">新規投稿</h1>
             </div>
             <div class="row mt-2">
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
@@ -96,67 +71,60 @@
                 <form class="col-sm-12" action="new.php" method="POST" enctype="multipart/form-data">
                     <!-- 1行 -->
                     <div class="form-group row">
-                        <label class="col-2 col-form-label">名前</label>
-                        <div class="col-10">
+                        <label class="col-sm-2 col-form-label">名前</label>
+                        <div class="col-sm-10">
                             <input type="text" class="form-control" name="name" required>
                         </div>
                     </div>
                 
                     <!-- 1行 -->
                     <div class="form-group row">
-                        <label class="col-2 col-form-label">タイトル</label>
-                        <div class="col-10">
+                        <label class="col-sm-2 col-form-label">タイトル</label>
+                        <div class="col-sm-10">
                             <input type="text" class="form-control" name="title" required>
                         </div>
                     </div>
                     
                     <!-- 1行 -->
                     <div class="form-group row">
-                        <label class="col-2 col-form-label">内容</label>
-                        <div class="col-10">
+                        <label class="col-sm-2 col-form-label">内容</label>
+                        <div class="col-sm-10">
                             <input type="text" class="form-control" name="body" required>
                         </div>
                     </div>
                     
                     <div class="form-group row">
-                        <label class="col-2 col-form-label">画像アップロード</label>
-                        <div class="col-3">
-                            <input type="file" name="image" accept='image/*' onchange="previewImage(this);"　class="" required　>
+                        <label class="col-sm-2 col-form-label">画像アップロード</label>
+                        <div class="col-sm-2">
+                            <input type="file" name="image" required accept='image/*' onchange="previewImage(this);">
                         </div>
-                        <div class="col-7">
-                            <img id="preview" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="max-width:200px;">
+                        <canvas id="canvas" class="offset-sm-4 col-4" width="0" height="0"></canvas>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">削除パスワード</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" name="password" required>
                         </div>
                     </div>
                     
                     <!-- 1行 -->
                     <div class="form-group row">
-                        <div class="offset-2 col-10">
-                            <button type="submit" class="btn btn-primary">投稿</button>
-                        </div>
+                       <button type="submit" class="offset-sm-2 col-sm-10 btn btn-danger " id="upload">投稿</button>
                     </div>
                 </form>
             </div>
              <div class="row mt-5">
-                <a href="index.php" class="btn btn-primary">投稿一覧</a>
+                <a href="index.php" class="btn btn-primary">投稿一覧へ</a>
             </div>
         </div>
         
-
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS, then Font Awesome -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"></script>
-        <script>
-            function previewImage(obj)
-            {
-            	var fileReader = new FileReader();
-            	fileReader.onload = (function() {
-            		document.getElementById('preview').src = fileReader.result;
-            	});
-            	fileReader.readAsDataURL(obj.files[0]);
-            }
-        </script>
+        <script src="script.js"></script>
     </body>
 </html>

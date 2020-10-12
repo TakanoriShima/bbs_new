@@ -1,42 +1,26 @@
 <?php
+    // 外部ファイルの読み込み
+    require_once 'util/message_util.php';
     
+    // セッションスタート
     session_start();
-    // テストプログラム
-    // $dsn = 'mysql:host=us-cdbr-east-02.cleardb.com;dbname=heroku_5774074b0e1fbed';
-    // $username = 'be98aadb1041f4';
-    // $password = 'dd672692';
-    // $messages = array();
-    
-    // Xfree
-    // $dsn = 'mysql:host=mysql1.php.xdomain.ne.jp;dbname=quark2galaxy_bbs';
-    // $username = 'quark2galaxy_bbs';
-    // $password = 'mmEL78rT';
-    //サーバ: mysql1.php.xdomain.ne.jp via TCP/IP
-    //ユーザ: quark2galaxy_bbs@sv3.php.xdomain.ne.jp
-    
-  
-    $dsn = 'mysql:host=localhost;dbname=bbs';
-    $username = 'root';
-    $password = '';
-    $messages = array();
 
+    // 変数の初期化
+    $messages = array();
     $flash_message = "";
 
+    // 例外処理
     try {
-    
-        $options = array(
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,        // 失敗したら例外を投げる
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,   //デフォルトのフェッチモードはクラス
-            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',   //MySQL サーバーへの接続時に実行するコマンド
-        ); 
         
-        $pdo = new PDO($dsn, $username, $password, $options);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            
-        $stmt = $pdo->query('SELECT * FROM messages order by id desc');
-    
-        $messages = $stmt->fetchAll();
+        // データベースを扱う便利なインスタンス生成
+        $message_util = new message_util();
+        // データを全件取得
+        $messages = $message_util->get_all_messages();
         
+        // 便利なインスタンス削除
+        $message_util = null;
+        
+        // フラッシュメッセージの取得とセッションからの削除
         if(isset($_SESSION['flash_message']) === true){
             $flash_message = $_SESSION['flash_message'];
             $_SESSION['flash_message'] = null;
@@ -46,7 +30,6 @@
         echo 'PDO exception: ' . $e->getMessage();
         exit;
     }
-    
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -54,28 +37,26 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+        
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="style.css">
         <link rel="shortcut icon" href="favicon.ico">
         <title>簡易掲示板</title>
-        <style>
-            h2{
-                color: red;
-                background-color: pink;
-            }
-        </style>
     </head>
     <body>
         <div class="container">
             <div class="row mt-2">
-                <h1 class=" col-sm-12 text-center">投稿一覧</h1>
+                <h1 class="col-sm-12 text-center mt-2">投稿一覧</h1>
             </div>
             <div class="row mt-2">
-                <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
+                <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h2>
             </div>
             <div class="row mt-2">
+            <!--データが1件でもあれば-->
             <?php if(count($messages) !== 0){ ?> 
+            
+                <p><?php print count($messages); ?>件</p>
                 <table class="col-sm-12 table table-bordered table-striped">
                     <tr>
                         <th>ID</th>
@@ -87,16 +68,16 @@
                     </tr>
                 <?php foreach($messages as $message){ ?>
                     <tr>
-                        <td><a href="show.php?id=<?php print $message['id']; ?>"><?php print $message['id']; ?></a></td>
-                        <td><?php print $message['name']; ?></td>
-                        <td><?php print $message['title']; ?></td>
-                        <td><?php print $message['body']; ?></td>
-                        <td><?php print $message['created_at']; ?></td>
+                        <td><a href="show.php?id=<?php print $message->id; ?>"><?php print $message->id; ?></a></td>
+                        <td><?php print $message->name; ?></td>
+                        <td><?php print $message->title; ?></td>
+                        <td><?php print $message->body; ?></td>
+                        <td><?php print $message->created_at; ?></td>
                     </tr>
                 <?php } ?>
                 </table>
             <?php }else{ ?>
-                    <p>データ一件もありません。</p>
+                    <p>データは、1件もありません。</p>
             <?php } ?>
             </div>
             <div class="row mt-5">

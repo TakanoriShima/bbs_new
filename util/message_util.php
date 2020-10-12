@@ -106,7 +106,7 @@ class message_util{
         $stmt->execute();
         $this->close_connection($pdo, $stmp);
         
-        unlink(IMAGE_DIR . $message['image']);
+        unlink(IMAGE_DIR . $image);
 
     }
     

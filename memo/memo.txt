@@ -75,8 +75,3 @@ create table comments (
     on delete cascade
     on update cascade
 ); 
-
-insert into comments(message_id, name, content) values(7, "a", "b");
-insert into comments(message_id, name, content) values(7, "c", "d");
-INSERT INTO comments (message_id, name, content) VALUES (:message_id, :name, :content)
-INSERT INTO comments (message_id, name, content) VALUES (:message_id, :name, :content)

@@ -47,30 +47,37 @@ show databases;
 
 use bbs;
 
-show tables;
-
-create table messages(
+create table users(
     id int primary key auto_increment, 
     name varchar(50) not null,
-    title varchar(50) not null,
-    body varchar(100) not null,
-    image varchar(100) not null,
+    nickname varchar(50) not null,
+    email varchar(50) not null,
+    avatar varchar(100) not null,
     password varchar(50) not null,
     created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-show tables;
-describe messages;
-
-insert into messages(name, title, body) values("山田", "初めての投稿", "Herokuにデプロイできるかな？");
-select * from messages;
+create table messages(
+    id int primary key auto_increment, 
+    user_id int not null,
+    title varchar(50) not null,
+    body varchar(100) not null,
+    image varchar(100) not null,
+    created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    foreign key(user_id) references users(id)
+    on delete cascade
+    on update cascade
+);
 
 create table comments (
     id int primary key auto_increment,
+    user_id int not null,
     message_id int not null,
-    name varchar(50) not null,
     content varchar(100) not null, 
     created_at timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    foreign key(user_id) references users(id)
+    on delete cascade
+    on update cascade,
     foreign key(message_id) references messages(id)
     on delete cascade
     on update cascade

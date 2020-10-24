@@ -1,20 +1,24 @@
 <?php
+require_once 'user.php';
+
 class message{
     
     public $id;
-    public $name;
+    public $user_id;
     public $title;
     public $body;
     public $image;
-    public $password;
     public $created_at;
     
-    public function __construct($name="", $title="", $body="", $image="", $password=""){
-        $this->name = $name;
+    public function __construct($user_id="", $title="", $body="", $image=""){
+        $this->user_id = $user_id;
         $this->title = $title;
         $this->body = $body;
         $this->image = $image;
-        $this->password = $password;
+    }
+    
+    public function get_user_name(){
+        
     }
 }
 ?>

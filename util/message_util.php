@@ -1,6 +1,7 @@
 <?php
 // 外部ファイルの読み込み
 require_once 'config/const.php';
+// require_once 'models/user.php';
 require_once 'models/message.php';
 
 // データベースとやり取りを行う便利なクラス
@@ -61,16 +62,14 @@ class message_util{
     // データを1件登録するメソッド
     public function insert($message){
         $pdo = $this->get_connection();
-        $stmt = $pdo -> prepare("INSERT INTO messages (name, title, body, image, password) VALUES (:name, :title, :body, :image, :password)");
+        $stmt = $pdo -> prepare("INSERT INTO messages (user_id, title, body, image) VALUES (:user_id, :title, :body, :image)");
         // バインド処理
-        $stmt->bindParam(':name', $message->name, PDO::PARAM_STR);
+        $stmt->bindParam(':user_id', $message->user_id, PDO::PARAM_INT);
         $stmt->bindParam(':title', $message->title, PDO::PARAM_STR);
         $stmt->bindParam(':body', $message->body, PDO::PARAM_STR);
         $stmt->bindParam(':image', $message->image, PDO::PARAM_STR);
-        $stmt->bindParam(':password', $message->password, PDO::PARAM_STR);
         $stmt->execute();
         $this->close_connection($pdo, $stmp);
-        
     }
     
     
@@ -78,9 +77,8 @@ class message_util{
     public function update($id, $message){
         $pdo = $this->get_connection();
         $image = $this->get_image_name_by_id($id);
-        $stmt = $pdo->prepare('UPDATE messages SET name=:name, title=:title, body=:body, image=:image WHERE id = :id');
+        $stmt = $pdo->prepare('UPDATE messages SET title=:title, body=:body, image=:image WHERE id = :id');
                         
-        $stmt->bindParam(':name', $message->name, PDO::PARAM_STR);
         $stmt->bindParam(':title', $message->title, PDO::PARAM_STR);
         $stmt->bindParam(':body', $message->body, PDO::PARAM_STR);
         $stmt->bindParam(':image', $message->image, PDO::PARAM_STR);
@@ -91,7 +89,7 @@ class message_util{
         
         // 画像の物理削除
         if($image !== $message->image){
-            unlink(IMAGE_DIR . $image);
+            unlink(POST_IMAGE_DIR . $image);
         }
     }
     
@@ -106,7 +104,7 @@ class message_util{
         $stmt->execute();
         $this->close_connection($pdo, $stmp);
         
-        unlink(IMAGE_DIR . $image);
+        unlink(POST_IMAGE_DIR . $image);
 
     }
     
@@ -118,7 +116,7 @@ class message_util{
             $image = uniqid(mt_rand(), true); 
             // アップロードされたファイルの拡張子を取得
             $image .= '.' . substr(strrchr($_FILES['image']['name'], '.'), 1);
-            $file = IMAGE_DIR . $image;
+            $file = POST_IMAGE_DIR . $image;
         
             // uploadディレクトリにファイル保存
             move_uploaded_file($_FILES['image']['tmp_name'], $file);

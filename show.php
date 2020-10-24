@@ -1,5 +1,8 @@
 <?php
     // 外部ファイルの読み込み
+    require_once 'config/const.php';
+    require_once 'models/user.php';
+    require_once 'util/user_util.php';
     require_once 'util/message_util.php';
     require_once 'util/comment_util.php';
     
@@ -7,9 +10,15 @@
     session_start();
     
     // 変数の初期化
+    $user_id = "";
     $id = "";
     $message = "";
     $flash_message = "";
+    
+    // ログインしているのならば
+    if(isset($_SESSION['user_id'])){
+        $user_id = $_SESSION['user_id'];
+    }
     
     // id値を取得
     if(isset($_GET['id']) === true){
@@ -31,14 +40,13 @@
         // 例外処理
         try {
             // 入力された値を取得
-            $name = $_POST['name'];
             $content = $_POST['content'];
                     
             // データベースを扱う便利なインスタンス生成
             $comment_util = new comment_util();
 
             // 新しいコメントインスタンス作成
-            $comment = new comment($id, $name, $content);
+            $comment = new comment($user_id, $id, $content);
             $comment_util->insert($comment);             
                    
             // セッションにフラッシュメッセージをセット 
@@ -57,6 +65,10 @@
     // 例外処理
     try {
         // データベースを扱う便利なインスタンス生成
+        $user_util = new user_util();
+        if($user_id !== ""){
+            $me = $user_util->get_user_by_id($user_id);
+        }
         $message_util = new message_util();
         // テーブルから1件のデータを取得
         $message = $message_util->get_message_by_id($id);
@@ -87,15 +99,40 @@
         <link rel="stylesheet" href="style.css">
         <link rel="shortcut icon" href="favicon.ico">
         <title>投稿詳細</title>
+        <style>
+            .avatar_image{
+                object-fit: cover;
+                border-radius: 50%;
+                width: 100px;
+                height: 100px;
+            }
+        </style>
     </head>
     <body>
         <div class="container">
+            
+            <?php if($user_id !== ""){ ?>
+            <div class="row mt-4">
+                <div class="col-sm-2">
+                    <img src="<?php print USER_IMAGE_DIR . $me->avatar ?>" class="avatar_image">
+                </div>
+                <div class="col-sm-2 mt-4">
+                    <?php print $me->nickname; ?>さん
+                </div>
+                <div class="offset-sm-6 col-sm-2">
+                    <a href="logout.php" class="btn btn-primary">ログアウト</a>
+                </div>
+            </div>
+            <?php } ?>
+            
             <div class="row mt-2">
                 <h1 class="text-center col-sm-12 mt-2">id: <?php print $id; ?> の投稿詳細</h1>
             </div>
+            <?php if($user_id !== "" && $message->user_id === $user_id){ ?>
             <div class="row mt-2">
                 <h4 class="text-center col-sm-12"><a href="edit.php?id=<?php print $id; ?>" class="btn btn-primary">更新・削除ページへ</a></h4>
             </div>
+            <?php } ?>
             <div class="row mt-2">
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
             </div>
@@ -103,7 +140,8 @@
                 <table class="table table-bordered table-striped">
                     <tr>
                         <th class="text-center">投稿者</th>
-                        <td class="text-center"><?php print $message->name; ?></td>
+                        <?php $user = $user_util->get_user_by_id($message->user_id); ?>
+                        <td class="text-center"><?php print $user->nickname; ?></td>
                     </tr>
                     <tr>
                         <th class="text-center">投稿日時</th>
@@ -120,7 +158,7 @@
                     <tr>
                         <th class="text-center">画像</th>
                         <td class="text-center">
-                            <img src="<?php print IMAGE_DIR . $message-> image?>">
+                            <img src="<?php print POST_IMAGE_DIR . $message-> image?>">
                         </td>
                     </tr>
                 </table>
@@ -146,7 +184,8 @@
                 <?php foreach($comments as $comment){ ?>
                     <tr>
                         <td><?php print $comment->id; ?></a></td>
-                        <td><?php print $comment->name; ?></td>
+                        <?php $user = $user_util->get_user_by_id($comment->user_id); ?>
+                        <td><?php print $user->nickname; ?></td>
                         <td><?php print $comment->content; ?></td>
                         <td><?php print $message->created_at; ?></td>
                     </tr>
@@ -159,15 +198,10 @@
             </div>
             <?php } ?>
 
+            <?php if($user_id !== ""){ ?>
             <div class="row mt-2 comments">
                 <form class="offset-sm-2 col-sm-8" action="show.php" method="POST">
                     <div class="row">
-                        <div class="form-group col-sm-4">
-                            <label class="col-sm-4 col-form-label">名前</label>
-                            <div class="col-sm-12">
-                                <input type="text" class="form-control" name="name" required value="<?php print ""; ?>">
-                            </div>
-                        </div>
                         <div class="form-group col-sm-4">
                             <label class="col-sm-6 col-form-label">コメント</label>
                             <div class="col-sm-12">
@@ -184,6 +218,7 @@
                     </div>
                 </form>
             </div>
+            <?php } ?>
                    
              <div class="row mt-5">
                 <a href="index.php" class="btn btn-primary">投稿一覧へ</a>

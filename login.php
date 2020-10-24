@@ -1,11 +1,9 @@
 <?php
     // 外部ファイルの読み込み
-    require_once 'util/message_util.php';
+    require_once 'util/user_util.php';
     
     // セッション開始
     session_start();
-    
-    $user_id = $_SESSION["user_id"];
     
     // 変数の初期化
     $flash_message = "";
@@ -14,32 +12,34 @@
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
         // フォームからの入力値を取得
-        $title = $_POST['title'];
-        $body = $_POST['body'];
-
+        $email = $_POST['email'];
+        $password = $_POST['password'];
         
         // 例外処理
         try {
             
             // データベースを扱う便利なインスタンス生成
-            $message_util = new message_util();
-            // 画像ファイルの物理的アップロード処理
-            $image = $message_util->upload($_FILES);
+            $user_util = new user_util();
             
-            // 新しいメッセージインスタンスを生成
-            $message = new message($user_id, $title, $body, $image);
-
-            // データベースにデータを1件保存
-            $message_util->insert($message);
+            // ログイン処理
+            $user = $user_util->login($email, $password);
             
             // 便利なインスタンス削除
-            $message_util = null;
-                    
-            // セッションにフラッシュメッセージを保存        
-            $_SESSION['flash_message'] = "投稿が成功しました。";
+            $user_util = null;
             
-            // 画面遷移
-            header('Location: index.php');
+            //var_dump($user);
+            
+            //ユーザが存在すれば
+            if($user){
+                // セッションに、ユーザ番号とフラッシュメッセージを保存        
+                $_SESSION['flash_message'] = "ログインしました。";
+                $_SESSION['user_id'] = $user->id;
+                //画面遷移
+                header('Location: index.php');
+                
+            }else{
+                $flash_message = "入力内容が間違えています。";
+            }
 
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
@@ -58,51 +58,39 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="style.css">
         <link rel="shortcut icon" href="favicon.ico">
-        <title>新規投稿</title>
+        <title>ログイン</title>
     </head>
     <body>
         <div class="container">
             <div class="row mt-2">
-                <h1 class="text-center col-sm-12 mt-2">新規投稿</h1>
+                <h1 class="text-center col-sm-12 mt-2">ログイン</h1>
             </div>
             <div class="row mt-2">
                 <h2 class="text-center col-sm-12"><?php print $flash_message; ?></h1>
             </div>
             <div class="row mt-2">
-                <form class="col-sm-12" action="new.php" method="POST" enctype="multipart/form-data">
-
+                <form class="col-sm-12" action="login.php" method="POST">
                     <!-- 1行 -->
                     <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">タイトル</label>
+                        <label class="col-sm-2 col-form-label">メールアドレス</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="title" required>
+                            <input type="email" class="form-control" name="email" required>
                         </div>
                     </div>
-                    
+                
                     <!-- 1行 -->
                     <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">内容</label>
+                        <label class="col-sm-2 col-form-label">パスワード</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="body" required>
+                            <input type="password" class="form-control" name="password" required>
                         </div>
-                    </div>
-                    
-                    <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">画像アップロード</label>
-                        <div class="col-sm-2">
-                            <input type="file" name="image" required accept='image/*' onchange="previewImage(this);">
-                        </div>
-                        <canvas id="canvas" class="offset-sm-4 col-4" width="0" height="0"></canvas>
                     </div>
                     
                     <!-- 1行 -->
                     <div class="form-group row">
-                       <button type="submit" class="offset-sm-2 col-sm-10 btn btn-danger " id="upload">投稿</button>
+                       <button type="submit" class="offset-sm-2 col-sm-10 btn btn-primary">ログイン</button>
                     </div>
                 </form>
-            </div>
-             <div class="row mt-5">
-                <a href="index.php" class="btn btn-primary">投稿一覧へ</a>
             </div>
         </div>
         

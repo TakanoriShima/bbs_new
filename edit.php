@@ -6,6 +6,7 @@
     session_start();
     
     // 変数の初期化
+    $user_id = "";
     $id = "";
     $message = "";
     $flash_message = "";
@@ -21,6 +22,10 @@
     if(isset($_SESSION['flash_message']) === true){
         $flash_message = $_SESSION['flash_message'];
         $_SESSION['flash_message'] = null;
+    }
+    
+    if(isset($_SESSION['user_id']) === true){
+        $user_id = $_SESSION['user_id'];
     }
 
     // 例外処理
@@ -45,60 +50,53 @@
         $password = $_POST['password'];
         
         try {
-            // パスワードが正しいのならば
-            if($password === $message->password){
-                // 更新ボタンが押されたならば
-                if($_POST['kind_method'] === 'update'){
-                    
-                    // 入力された値を取得
-                    $name = $_POST['name'];
-                    $title = $_POST['title'];
-                    $body = $_POST['body'];
-                    
-                    // 画像をアップロード
-                    // データベースを扱う便利なインスタンス生成
-                    $message_util = new message_util();
-                    $image = $message_util->upload($_FILES);
-            
-                    // 画像が選択されていないならば、画像ファイル名には現在の名前をセット
-                    if($image === null){
-                        $image = $message->image;
-                    }
+           
+            if($_POST['kind_method'] === 'update'){
                 
-                    // 新しいメッセージインスタンス作成
-                    $update_message = new message($name, $title, $body, $image, $password);
-                    
-                    // 更新処理
-                    $message_util->update($id, $update_message);
-                    
-                    // 便利なインスタンス削除
-                    $message_util = null;
-                   
-                    // セッションにフラッシュメッセージをセット 
-                    $_SESSION['flash_message'] = "投稿が更新されました。";
-                    
-                    // トップ画面に遷移
-                    header('Location: index.php');
-
-                 // 削除ボタンが押されたならば
-                }else if($_POST['kind_method'] === 'delete'){
-                    // データベースを扱う便利なインスタンス生成
-                    $message_util = new message_util();
-                    
-                    // 削除処理
-                    $message_util->delete($id);
-                    
-                    // 便利なインスタンス削除
-                    $message_util = null;
-                    
-                    $_SESSION['flash_message'] = "投稿が削除されました。";
-                    header('Location: index.php');
-                }    
-            }else{
-                $_SESSION['flash_message'] = "パスワードが間違えています。";
-                header('Location: edit.php?id=' . $id);
-            }
+                // 入力された値を取得
+                $title = $_POST['title'];
+                $body = $_POST['body'];
+                
+                // 画像をアップロード
+                // データベースを扱う便利なインスタンス生成
+                $message_util = new message_util();
+                $image = $message_util->upload($_FILES);
+        
+                // 画像が選択されていないならば、画像ファイル名には現在の名前をセット
+                if($image === null){
+                    $image = $message->image;
+                }
             
+                // 新しいメッセージインスタンス作成
+                $update_message = new message($user_id, $title, $body, $image);
+                
+                // 更新処理
+                $message_util->update($id, $update_message);
+                
+                // 便利なインスタンス削除
+                $message_util = null;
+               
+                // セッションにフラッシュメッセージをセット 
+                $_SESSION['flash_message'] = "投稿が更新されました。";
+                
+                // トップ画面に遷移
+                header('Location: index.php');
+
+             // 削除ボタンが押されたならば
+            }else if($_POST['kind_method'] === 'delete'){
+                // データベースを扱う便利なインスタンス生成
+                $message_util = new message_util();
+                
+                // 削除処理
+                $message_util->delete($id);
+                
+                // 便利なインスタンス削除
+                $message_util = null;
+                
+                $_SESSION['flash_message'] = "投稿が削除されました。";
+                header('Location: index.php');
+            }    
+        
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
             exit;
@@ -129,14 +127,6 @@
             </div>
             <div class="row mt-2">
                 <form class="col-sm-12" action="edit.php?id=<?php print $id; ?>" method="POST" enctype="multipart/form-data">
-               
-                    <!-- 1行 -->
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label">名前</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" name="name" required value="<?php print $message->name; ?>">
-                        </div>
-                    </div>
                 
                     <!-- 1行 -->
                     <div class="form-group row">
@@ -158,7 +148,7 @@
                         <label class="col-2 col-form-label">現在の画像</label>
                         <div class="col-10">
                             
-                            <img src="<?php if(file_exists(IMAGE_DIR . $message->image)){ print IMAGE_DIR . $message->image; }else{ print 'no-image.png';} ?>" alt="表示する画像がありません。">
+                            <img src="<?php if(file_exists(POST_IMAGE_DIR . $message->image)){ print POST_IMAGE_DIR . $message->image; }else{ print 'no-image.png';} ?>" alt="表示する画像がありません。">
                         </div>
                     </div>
                     
@@ -174,13 +164,7 @@
                     <div class="row">
                         <input type="hidden" name="id" value="<?php print $message->id; ?>">
                     </div>
-                    
-                    <div class="row">
-                        <label class="form-group col-2 col-form-label">更新・削除パスワード</label>
-                        <div class="col-10">
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                    </div>
+        
                 
                     <!-- 1行 -->
                     <div class="form-group row mt-3">

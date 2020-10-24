@@ -38,11 +38,11 @@ class comment_util{
     // データを1件登録するメソッド
     public function insert($comment){
         $pdo = $this->get_connection();
-        $stmt = $pdo -> prepare("INSERT INTO comments (message_id, name, content) VALUES (:message_id, :name, :content)");
+        $stmt = $pdo -> prepare("INSERT INTO comments (user_id, message_id, content) VALUES (:user_id, :message_id, :content)");
 
         // バインド処理
+        $stmt->bindParam(':user_id', $comment->user_id, PDO::PARAM_INT);
         $stmt->bindParam(':message_id', $comment->message_id, PDO::PARAM_INT);
-        $stmt->bindParam(':name', $comment->name, PDO::PARAM_STR);
         $stmt->bindParam(':content', $comment->content, PDO::PARAM_STR);
 
         $stmt->execute();

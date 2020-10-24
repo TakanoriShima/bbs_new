@@ -63,8 +63,8 @@ class user_util{
     public function login($email, $password){
         $pdo = $this->get_connection();
         $stmt = $pdo->prepare('SELECT * FROM users WHERE email=:email AND password=:password');
-        $stmt->bindParam(':email', $email, PDO::PARAM_INT);
-        $stmt->bindParam(':password', $password, PDO::PARAM_INT);
+        $stmt->bindParam(':email', $email, PDO::PARAM＿STR);
+        $stmt->bindParam(':password', $password, PDO::PARAM_ST);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'user');
         $user = $stmt->fetch();

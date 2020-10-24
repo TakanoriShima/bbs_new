@@ -1,6 +1,6 @@
 <?php
     // 外部ファイルの読み込み
-    require_once 'util/UserDAO.php';
+    require_once 'utils/UserDAO.php';
     
     // セッション開始
     session_start();

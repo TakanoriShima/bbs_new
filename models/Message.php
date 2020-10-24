@@ -1,5 +1,5 @@
 <?php
-require_once 'User.php';
+require_once 'utils/UserDAO.php';
 
 class Message{
     
@@ -17,8 +17,10 @@ class Message{
         $this->image = $image;
     }
     
-    public function get_user_name(){
-        
+    public function get_user(){
+        $user_dao = new UserDAO();
+        $user = $user_dao->get_user_by_id($this->user_id);
+        return $user;
     }
 }
 ?>

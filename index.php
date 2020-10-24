@@ -1,7 +1,5 @@
 <?php
     // 外部ファイルの読み込み
-    // require_once 'config/const.php';
-    // require_once 'models/User.php';
     require_once 'utils/UserDAO.php';
     require_once 'utils/MessageDAO.php';
     
@@ -72,7 +70,7 @@
             <?php if($user_id !== ""){ ?>
             <div class="row mt-4">
                 <div class="col-sm-2">
-                    <img src="<?php print USER_IMAGE_DIR . $me->avatar ?>" class="avatar_image">
+                    <img src="<?php print USER_IMAGE_DIR . $me->avatar; ?>" class="avatar_image">
                 </div>
                 <div class="col-sm-2 mt-4">
                     <?php print $me->nickname; ?>さん
@@ -116,8 +114,7 @@
                 <?php foreach($messages as $message){ ?>
                     <tr>
                         <td><a href="show.php?id=<?php print $message->id; ?>"><?php print $message->id; ?></a></td>
-                        <?php $user = $user_dao->get_user_by_id($message->user_id); ?>
-                        <td><?php print $user->nickname; ?></td>
+                        <td><?php print $message->get_user()->nickname; ?></td>
                         <td><?php print $message->title; ?></td>
                         <td><?php print $message->body; ?></td>
                         <td><?php print $message->created_at; ?></td>

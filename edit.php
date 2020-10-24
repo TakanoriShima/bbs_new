@@ -1,6 +1,6 @@
 <?php
     // 外部ファイルの読み込み
-    require_once 'util/message_util.php';
+    require_once 'utils/MessageDAO.php';
     
     // セッションスタート
     session_start();
@@ -31,12 +31,12 @@
     // 例外処理
     try {
         // データベースを扱う便利なインスタンス生成
-        $message_util = new message_util();
+        $message_dao = new MessageDAO();
         // テーブルから1件のデータを取得
-        $message = $message_util->get_message_by_id($id);
+        $message = $message_dao->get_message_by_id($id);
         
         // 便利なインスタンス削除
-        $message_util = null;
+        $message_dao = null;
         
     } catch (PDOException $e) {
         echo 'PDO exception: ' . $e->getMessage();
@@ -46,9 +46,6 @@
     // POST通信の時 (= 更新、もしくは削除ボタンが押された時)  
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
-        // 入力されたパスワード取得
-        $password = $_POST['password'];
-        
         try {
            
             if($_POST['kind_method'] === 'update'){
@@ -59,8 +56,8 @@
                 
                 // 画像をアップロード
                 // データベースを扱う便利なインスタンス生成
-                $message_util = new message_util();
-                $image = $message_util->upload($_FILES);
+                $message_dao = new MessageDAO();
+                $image = $message_dao->upload($_FILES);
         
                 // 画像が選択されていないならば、画像ファイル名には現在の名前をセット
                 if($image === null){
@@ -68,13 +65,13 @@
                 }
             
                 // 新しいメッセージインスタンス作成
-                $update_message = new message($user_id, $title, $body, $image);
+                $update_message = new Message($user_id, $title, $body, $image);
                 
                 // 更新処理
-                $message_util->update($id, $update_message);
+                $message_dao->update($id, $update_message);
                 
                 // 便利なインスタンス削除
-                $message_util = null;
+                $message_dao = null;
                
                 // セッションにフラッシュメッセージをセット 
                 $_SESSION['flash_message'] = "投稿が更新されました。";
@@ -85,13 +82,13 @@
              // 削除ボタンが押されたならば
             }else if($_POST['kind_method'] === 'delete'){
                 // データベースを扱う便利なインスタンス生成
-                $message_util = new message_util();
+                $message_dao = new MessageDAO();
                 
                 // 削除処理
-                $message_util->delete($id);
+                $message_dao->delete($id);
                 
                 // 便利なインスタンス削除
-                $message_util = null;
+                $message_dao = null;
                 
                 $_SESSION['flash_message'] = "投稿が削除されました。";
                 header('Location: index.php');

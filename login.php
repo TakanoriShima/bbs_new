@@ -1,6 +1,6 @@
 <?php
     // 外部ファイルの読み込み
-    require_once 'util/user_util.php';
+    require_once 'utils/UserDAO.php';
     
     // セッション開始
     session_start();
@@ -19,15 +19,13 @@
         try {
             
             // データベースを扱う便利なインスタンス生成
-            $user_util = new user_util();
+            $user_dao = new UserDAO();
             
             // ログイン処理
-            $user = $user_util->login($email, $password);
+            $user = $user_dao->login($email, $password);
             
             // 便利なインスタンス削除
-            $user_util = null;
-            
-            //var_dump($user);
+            $user_dao = null;
             
             //ユーザが存在すれば
             if($user){
@@ -91,6 +89,9 @@
                        <button type="submit" class="offset-sm-2 col-sm-10 btn btn-primary">ログイン</button>
                     </div>
                 </form>
+                <div class="row mt-5">
+                    <a href="index.php" class="btn btn-primary">戻る</a>
+                </div>
             </div>
         </div>
         

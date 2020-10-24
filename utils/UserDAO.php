@@ -1,10 +1,10 @@
 <?php
 // 外部ファイルの読み込み
-require_once 'config/const.php';
-require_once 'models/user.php';
+require_once 'config/Const.php';
+require_once 'models/User.php';
 
 // データベースとやり取りを行う便利なクラス
-class user_util{
+class UserDAO{
     
     // データベースと接続を行うメソッド
     public function get_connection(){
@@ -63,8 +63,8 @@ class user_util{
     public function login($email, $password){
         $pdo = $this->get_connection();
         $stmt = $pdo->prepare('SELECT * FROM users WHERE email=:email AND password=:password');
-        $stmt->bindParam(':email', $email, PDO::PARAM＿STR);
-        $stmt->bindParam(':password', $password, PDO::PARAM_ST);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'user');
         $user = $stmt->fetch();

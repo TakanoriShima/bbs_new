@@ -1,6 +1,6 @@
 <?php
     // 外部ファイルの読み込み
-    require_once 'util/message_util.php';
+    require_once 'utils/MessageDAO.php';
     
     // セッション開始
     session_start();
@@ -22,18 +22,18 @@
         try {
             
             // データベースを扱う便利なインスタンス生成
-            $message_util = new message_util();
+            $message_dao = new MessageDAO();
             // 画像ファイルの物理的アップロード処理
-            $image = $message_util->upload($_FILES);
+            $image = $message_dao->upload($_FILES);
             
             // 新しいメッセージインスタンスを生成
-            $message = new message($user_id, $title, $body, $image);
+            $message = new Message($user_id, $title, $body, $image);
 
             // データベースにデータを1件保存
-            $message_util->insert($message);
+            $message_dao->insert($message);
             
             // 便利なインスタンス削除
-            $message_util = null;
+            $message_dao = null;
                     
             // セッションにフラッシュメッセージを保存        
             $_SESSION['flash_message'] = "投稿が成功しました。";

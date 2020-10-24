@@ -1,7 +1,7 @@
 <?php
-require_once 'user.php';
+require_once 'User.php';
 
-class message{
+class Message{
     
     public $id;
     public $user_id;

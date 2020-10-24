@@ -1,6 +1,6 @@
 <?php
     // 外部ファイルの読み込み
-    require_once 'util/user_util.php';
+    require_once 'util/UserDAO.php';
     
     // セッション開始
     session_start();
@@ -21,24 +21,23 @@
         try {
             
             // データベースを扱う便利なインスタンス生成
-            $user_util = new user_util();
+            $user_dao = new UserDAO();
             // 画像ファイルの物理的アップロード処理
-            $avatar = $user_util->upload($_FILES);
+            $avatar = $user_dao->upload($_FILES);
             
             // 新しいuserインスタンスを生成
-            $user = new user($name, $nickname, $email, $avatar, $password);
+            $user = new User($name, $nickname, $email, $avatar, $password);
 
             // データベースにデータを1件保存
-            $user_util->signup($user);
+            $user_dao->signup($user);
             
             // 便利なインスタンス削除
-            $user_util = null;
+            $user_dao = null;
                     
             // セッションにフラッシュメッセージを保存        
             $_SESSION['flash_message'] = "会員登録が成功しました。";
-            $flash_message = "会員登録が成功しました。";
-            // 画面遷移
-            //header('Location: index.php');
+            //$flash_message = "会員登録が成功しました。";
+            header('Location: index.php');
 
         } catch (PDOException $e) {
             echo 'PDO exception: ' . $e->getMessage();
@@ -110,12 +109,12 @@
                     
                     <!-- 1行 -->
                     <div class="form-group row">
-                       <button type="submit" class="offset-sm-2 col-sm-10 btn btn-danger " id="upload">会員登録</button>
+                       <button type="submit" class="offset-sm-2 col-sm-10 btn btn-primary" id="upload">会員登録</button>
                     </div>
                 </form>
             </div>
              <div class="row mt-5">
-                <a href="login.php" class="btn btn-primary">ログインへ</a>
+                <a href="index.php" class="btn btn-primary">戻る</a>
             </div>
         </div>
         

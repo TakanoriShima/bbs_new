@@ -1,11 +1,11 @@
 <?php
 // 外部ファイルの読み込み
-require_once 'config/const.php';
+require_once 'config/Const.php';
 // require_once 'models/user.php';
-require_once 'models/message.php';
+require_once 'models/Message.php';
 
 // データベースとやり取りを行う便利なクラス
-class message_util{
+class MessageDAO{
     
     // データベースと接続を行うメソッド
     public function get_connection(){

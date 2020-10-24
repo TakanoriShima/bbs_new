@@ -1,10 +1,10 @@
 <?php
     // 外部ファイルの読み込み
-    require_once 'config/const.php';
-    require_once 'models/user.php';
-    require_once 'util/user_util.php';
-    require_once 'util/message_util.php';
-    require_once 'util/comment_util.php';
+    // require_once 'config/const.php';
+    // require_once 'models/user.php';
+    require_once 'utils/UserDAO.php';
+    require_once 'utils/MessageDAO.php';
+    require_once 'utils/CommentDAO.php';
     
     // セッションスタート
     session_start();
@@ -43,11 +43,11 @@
             $content = $_POST['content'];
                     
             // データベースを扱う便利なインスタンス生成
-            $comment_util = new comment_util();
+            $comment_dao = new CommentDAO();
 
             // 新しいコメントインスタンス作成
-            $comment = new comment($user_id, $id, $content);
-            $comment_util->insert($comment);             
+            $comment = new Comment($user_id, $id, $content);
+            $comment_dao->insert($comment);             
                    
             // セッションにフラッシュメッセージをセット 
             $_SESSION['flash_message'] = "コメントが投稿されました。";
@@ -65,20 +65,20 @@
     // 例外処理
     try {
         // データベースを扱う便利なインスタンス生成
-        $user_util = new user_util();
+        $user_dao = new UserDAO();
         if($user_id !== ""){
-            $me = $user_util->get_user_by_id($user_id);
+            $me = $user_dao->get_user_by_id($user_id);
         }
-        $message_util = new message_util();
+        $message_dao = new MessageDAO();
         // テーブルから1件のデータを取得
-        $message = $message_util->get_message_by_id($id);
+        $message = $message_dao->get_message_by_id($id);
        
         // 便利なインスタンス削除
-        $message_util = null;
+        $message_dao = null;
         
-        $comment_util = new comment_util();
-        $comments = $comment_util->get_all_comemnts_by_message_id($id);
-        $comment_util = null;
+        $comment_dao = new CommentDAO();
+        $comments = $comment_dao->get_all_comemnts_by_message_id($id);
+        $comment_dao = null;
   
     } catch (PDOException $e) {
         echo 'PDO exception: ' . $e->getMessage();
@@ -140,7 +140,7 @@
                 <table class="table table-bordered table-striped">
                     <tr>
                         <th class="text-center">投稿者</th>
-                        <?php $user = $user_util->get_user_by_id($message->user_id); ?>
+                        <?php $user = $user_dao->get_user_by_id($message->user_id); ?>
                         <td class="text-center"><?php print $user->nickname; ?></td>
                     </tr>
                     <tr>
@@ -184,10 +184,10 @@
                 <?php foreach($comments as $comment){ ?>
                     <tr>
                         <td><?php print $comment->id; ?></a></td>
-                        <?php $user = $user_util->get_user_by_id($comment->user_id); ?>
+                        <?php $user = $user_dao->get_user_by_id($comment->user_id); ?>
                         <td><?php print $user->nickname; ?></td>
                         <td><?php print $comment->content; ?></td>
-                        <td><?php print $message->created_at; ?></td>
+                        <td><?php print $comment->created_at; ?></td>
                     </tr>
                 <?php } ?>
                 </table>
@@ -202,8 +202,8 @@
             <div class="row mt-2 comments">
                 <form class="offset-sm-2 col-sm-8" action="show.php" method="POST">
                     <div class="row">
-                        <div class="form-group col-sm-4">
-                            <label class="col-sm-6 col-form-label">コメント</label>
+                        <div class="form-group col-sm-8">
+                            <label class="col-sm-3 col-form-label">コメント</label>
                             <div class="col-sm-12">
                                 <input type="text" class="form-control" name="content" required value="<?php print ""; ?>">
                             </div>

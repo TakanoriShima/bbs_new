@@ -1,10 +1,10 @@
 <?php
 // 外部ファイルの読み込み
-require_once 'config/const.php';
-require_once 'models/comment.php';
+require_once 'config/Const.php';
+require_once 'models/Comment.php';
 
 // データベースとやり取りを行う便利なクラス
-class comment_util{
+class CommentDAO{
     
     // データベースと接続を行うメソッド
     public function get_connection(){

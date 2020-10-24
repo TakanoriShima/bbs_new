@@ -1,9 +1,9 @@
 <?php
     // 外部ファイルの読み込み
-    require_once 'config/const.php';
-    require_once 'models/user.php';
-    require_once 'util/user_util.php';
-    require_once 'util/message_util.php';
+    // require_once 'config/const.php';
+    // require_once 'models/User.php';
+    require_once 'utils/UserDAO.php';
+    require_once 'utils/MessageDAO.php';
     
     // セッションスタート
     session_start();
@@ -22,17 +22,17 @@
     try {
         
         // データベースを扱う便利なインスタンス生成
-        $user_util = new user_util();
+        $user_dao = new UserDAO();
         if($user_id !== ""){
-            $me = $user_util->get_user_by_id($user_id);
+            $me = $user_dao->get_user_by_id($user_id);
         }
         
-        $message_util = new message_util();
+        $message_dao = new MessageDAO();
         // データを全件取得
-        $messages = $message_util->get_all_messages();
+        $messages = $message_dao->get_all_messages();
         
         // 便利なインスタンス削除
-        $message_util = null;
+        $message_dao = null;
         
         // フラッシュメッセージの取得とセッションからの削除
         if(isset($_SESSION['flash_message']) === true){
@@ -116,7 +116,7 @@
                 <?php foreach($messages as $message){ ?>
                     <tr>
                         <td><a href="show.php?id=<?php print $message->id; ?>"><?php print $message->id; ?></a></td>
-                        <?php $user = $user_util->get_user_by_id($message->user_id); ?>
+                        <?php $user = $user_dao->get_user_by_id($message->user_id); ?>
                         <td><?php print $user->nickname; ?></td>
                         <td><?php print $message->title; ?></td>
                         <td><?php print $message->body; ?></td>

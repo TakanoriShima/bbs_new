@@ -26,6 +26,10 @@
     
     if(isset($_SESSION['user_id']) === true){
         $user_id = $_SESSION['user_id'];
+    }else{
+        $_SESSION['flash_message'] = 'ログインしてください。';
+        // トップ画面に遷移
+        header('Location: index.php');
     }
 
     // 例外処理
@@ -34,6 +38,12 @@
         $message_dao = new MessageDAO();
         // テーブルから1件のデータを取得
         $message = $message_dao->get_message_by_id($id);
+        
+        if($message->user_id !== $user_id){
+            $_SESSION['flash_message'] = '不正アクセスです。';
+            // トップ画面に遷移
+            header('Location: index.php');
+        }
         
         // 便利なインスタンス削除
         $message_dao = null;

@@ -42,10 +42,10 @@ sudo service mysqld start
 mysql -u root
 
 show databases;
-create database bbs character set utf8;
+create database bbs_new character set utf8;
 show databases;
 
-use bbs;
+use bbs_new;
 
 create table users(
     id int primary key auto_increment, 
